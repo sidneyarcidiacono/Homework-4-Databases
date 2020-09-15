@@ -3,6 +3,13 @@ from flask_pymongo import PyMongo
 from bson.objectid import ObjectId
 
 ############################################################
+# TODO:
+############################################################
+# Input verification
+# Add login page when adding plant (cannot add plant if not logged in)
+# Add more resources to db
+
+############################################################
 # SETUP
 ############################################################
 
@@ -16,11 +23,17 @@ mongo = PyMongo(app)
 ############################################################
 
 
+@app.errorhandler(404)
+def oops_page(e):
+    """Return custom 404 page if page not found."""
+    print(e)
+    return render_template('404.html')
+
+
 @app.route('/')
 def plants_list():
     """Display the plants list page."""
     plants_data = mongo.db.plants.find()
-    print(plants_data)
 
     context = {
         'plants': plants_data,
@@ -116,6 +129,7 @@ def edit(plant_id):
 
         return render_template('edit.html', **context)
 
+
 @app.route('/delete/<plant_id>', methods=['POST'])
 def delete(plant_id):
     """Delete current plant."""
@@ -124,6 +138,7 @@ def delete(plant_id):
                                            {'plant_id': ObjectId(plant_id)})
 
     return redirect(url_for('plants_list'))
+
 
 if __name__ == '__main__':
     app.run(debug=True)

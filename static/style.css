@@ -62,6 +62,11 @@ footer {
     left: 0
 }
 
+.detail {
+  max-width: 30vw;
+  box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.2), 0 6px 15px 0 rgba(0, 0, 0, 0.2);
+}
+
 a.nav, input.nav, form input.submit {
     border: none;
     background-color: #229954;
@@ -100,6 +105,21 @@ div.card img {
     object-fit: cover;
     border-top-left-radius: 10px;
     border-top-right-radius: 10px;
+}
+
+div.card:hover {
+  animation: shakeImg 0.5s;
+  animation-iteration-count: infinite;
+}
+
+@keyframes shakeImg {
+  0% { transform: translate(1px, 1px) rotate(3deg); }
+  20% { transform: translate(-3px, 0px) rotate(6deg); }
+  30% { transform: translate(3px, 2px) rotate(-3deg); }
+  50% { transform: translate(-1px, 2px) rotate(-5deg); }
+  70% { transform: translate(3px, 1px) rotate(-7deg); }
+  90% { transform: translate(1px, 2px) rotate(3deg); }
+  100% { transform: translate(1px, -2px) rotate(-3deg); }
 }
 
 div.card-content {
