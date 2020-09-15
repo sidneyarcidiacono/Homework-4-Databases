@@ -19,16 +19,16 @@
             {{ plant['variety'] }}
             <br><br>
 
-            <a class="nav" href="/edit/{{plant}}">Edit Plant</a><br><br>
+            <a class="nav" href="/edit/{{ plant_id }}">Edit Plant</a><br><br>
         </section>
 
-        <form action="/harvest/{{plant_id}}" method="POST">
+        <form action="/harvest/{{ plant_id }}" method="POST">
             <fieldset>
                 <legend>Harvested:</legend>
 
                 <label>
                     Amount harvested
-                    <input type="text" name="harvested_amount" placeholder="e.g. 2 tomatoes">
+                    <input type="text" name="harvested_amount" placeholder="e.g. 2">
                 </label>
 
                 <label>
@@ -40,20 +40,17 @@
             </fieldset>
         </form>
 
-        {#
-            TODO: Create a for loop here to loop over all harvests (passed in
-            from the route's context) and display their information.
-        #}
         <section id="harvest-history">
             <h3>Harvest History</h3>
 
             <ul>
-                <li>5/15/2020: Harvested 3 tomatoes</li>
-                <li>5/18/2020: Harvested 2 tomatoes</li>
+              {% for harvest in harvests %}
+                <li>{{harvest.date}}: {{harvest.quantity}}</li>
+              {% endfor %}
             </ul>
         </section>
 
-        <form action="/delete/123456" method='POST' id="delete-form" onsubmit="return confirm_delete()">
+        <form action="/delete/{{ plant_id }}" method='POST' id="delete-form" onsubmit="return confirm_delete()">
             <input type="submit" class="nav" onclick="delete_modal()" value="Delete Plant">
         </form>
 </main>

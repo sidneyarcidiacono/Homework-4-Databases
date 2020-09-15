@@ -20,6 +20,7 @@ mongo = PyMongo(app)
 def plants_list():
     """Display the plants list page."""
     plants_data = mongo.db.plants.find()
+    print(plants_data)
 
     context = {
         'plants': plants_data,
@@ -62,11 +63,12 @@ def create():
 def detail(plant_id):
     """Display the plant detail page & process data from the harvest form."""
     plant_to_show = mongo.db.plants.find_one({"_id": ObjectId(plant_id)})
-    harvests = mongo.db.harvests.find({"_id": ObjectId(plant_id)})
+    harvests = mongo.db.harvests.find({"plant_id": ObjectId(plant_id)})
 
     context = {
         'plant': plant_to_show,
-        'harvests': harvests
+        'harvests': harvests,
+        'plant_id': ObjectId(plant_id),
     }
     return render_template('detail.html', **context)
 
@@ -75,7 +77,7 @@ def detail(plant_id):
 def harvest(plant_id):
     """Accept a POST request with data for 1 harvest and inserts into database."""
     date_harvested = request.form['date_harvested']
-    plant = mongo.db.find_one({'_id': ObjectId(plant_id)})
+    plant = mongo.db.plants.find_one({'_id': ObjectId(plant_id)})
 
     new_harvest = {
         'quantity': f"{request.form['harvested_amount']} {plant['name']}",
@@ -86,19 +88,27 @@ def harvest(plant_id):
     mongo.db.harvests.insert_one(new_harvest)
     return redirect(url_for('detail', plant_id=plant_id))
 
+
 @app.route('/edit/<plant_id>', methods=['GET', 'POST'])
 def edit(plant_id):
     """Shows the edit page and accepts a POST request with edited data."""
     if request.method == 'POST':
-        # TODO: Make an `update_one` database call to update the plant with the
-        # given id. Make sure to put the updated fields in the `$set` object.
-
+        new_name = request.form['plant_name']
+        new_variety = request.form['variety']
+        new_photo = request.form['photo']
+        new_date = request.form['date_planted']
+        updated_plant = mongo.db.plants.update({'_id': ObjectId(plant_id)},
+                                               {'$set': {
+                                                    'name': new_name,
+                                                    'variety': new_variety,
+                                                    'photo_url': new_photo,
+                                                    'date_planted': new_date
+                                                   }
+                                                })
 
         return redirect(url_for('detail', plant_id=plant_id))
     else:
-        # TODO: Make a `find_one` database call to get the plant object with the
-        # passed-in _id.
-        plant_to_show = ''
+        plant_to_show = mongo.db.plants.find_one({'_id': ObjectId(plant_id)})
 
         context = {
             'plant': plant_to_show
@@ -108,11 +118,10 @@ def edit(plant_id):
 
 @app.route('/delete/<plant_id>', methods=['POST'])
 def delete(plant_id):
-    # TODO: Make a `delete_one` database call to delete the plant with the given
-    # id.
-
-    # TODO: Also, make a `delete_many` database call to delete all harvests with
-    # the given plant id.
+    """Delete current plant."""
+    plant_to_delete = mongo.db.plants.delete_one({'_id': ObjectId(plant_id)})
+    harvests_to_delete = mongo.db.harvests.delete_many(
+                                           {'plant_id': ObjectId(plant_id)})
 
     return redirect(url_for('plants_list'))
 
