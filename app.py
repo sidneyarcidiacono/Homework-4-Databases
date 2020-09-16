@@ -1,22 +1,31 @@
-from flask import Flask, request, redirect, render_template, url_for
+"""Import packages and modules."""
+from flask import Flask, request, redirect, render_template, url_for, session, abort, flash
 from flask_pymongo import PyMongo
+import os
 from bson.objectid import ObjectId
 
 ############################################################
 # TODO:
 ############################################################
 # Input verification
-# Add login page when adding plant (cannot add plant if not logged in)
-# Add more resources to db
+# Log out functionality
+# User profile page
+# Delete user profile functionality
 
 ############################################################
 # SETUP
 ############################################################
 
+"""Configure app variables."""
 app = Flask(__name__)
 
+app.config['SECRET_KEY'] = 'SECRET_KEY'
 app.config["MONGO_URI"] = "mongodb://localhost:27017/plantsDatabase"
 mongo = PyMongo(app)
+
+app.config.update(
+    SECRET_KEY=os.urandom(24)
+)
 
 ############################################################
 # ROUTES
@@ -47,10 +56,50 @@ def about():
     return render_template('about.html')
 
 
+@app.route('/sign_up', methods=['GET', 'POST'])
+def sign_up():
+    """Display user sign up page."""
+    if request.method == 'GET':
+        return render_template('sign_up.html')
+    else:
+        user_email = request.form['user_email']
+        pass_one = request.form['set-password']
+        pass_two = request.form['confirm-password']
+        user_password = ''
+        if pass_one and pass_two and pass_one == pass_two:
+            user_password = pass_one
+            new_user = {
+                'email': user_email,
+                'password': user_password
+            }
+            mongo.db.users.insert_one(new_user)
+            session.logged_in = True
+        else:
+            flash('Passwords do not match. Please try again.')
+
+
+@app.route('/user_login', methods=['GET', 'POST'])
+def user_login():
+    """Allow user to access create feature."""
+    if request.method == 'GET':
+        return render_template('user_login.html')
+    else:
+        email = request.form['user_email']
+        user = mongo.db.users.find_one({'email': email})
+        print(user)
+        if request.form['password'] == user['password']:
+            session['logged_in'] = True
+            return redirect(url_for('create'))
+        else:
+            flash('Wrong password, please try again.')
+
+
 @app.route('/create', methods=['GET', 'POST'])
 def create():
     """Display the plant creation page & process data from the creation form."""
-    if request.method == 'POST':
+    if not session.get('logged_in'):
+        return redirect(url_for('user_login'))
+    elif request.method == 'POST' and session.get('logged_in'):
         name = request.form['plant_name']
         variety = request.form['variety']
         photo_url = request.form['photo']
