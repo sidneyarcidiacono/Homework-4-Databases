@@ -8,9 +8,8 @@ from bson.objectid import ObjectId
 # TODO:
 ############################################################
 # Input verification
-# Log out functionality
-# User profile page
-# Delete user profile functionality
+# User profile page (which user currently logged in)
+# Create delete user functionality
 
 ############################################################
 # SETUP
@@ -62,6 +61,8 @@ def sign_up():
     if request.method == 'GET':
         return render_template('sign_up.html')
     else:
+        first_name = request.form['first-name']
+        last_name = request.form['last_name']
         user_email = request.form['user_email']
         pass_one = request.form['set-password']
         pass_two = request.form['confirm-password']
@@ -70,7 +71,9 @@ def sign_up():
             user_password = pass_one
             new_user = {
                 'email': user_email,
-                'password': user_password
+                'password': user_password,
+                'first_name': first_name,
+                'last_name': last_name
             }
             mongo.db.users.insert_one(new_user)
             session.logged_in = True
@@ -111,6 +114,12 @@ def log_out():
     """Log out user."""
     session['logged_in'] = False
     return redirect(url_for('plants_list'))
+
+
+@app.route('/delete_user')
+def delete_user():
+    """Delete user profile and log out user."""
+    pass
 
 
 @app.route('/create', methods=['GET', 'POST'])
