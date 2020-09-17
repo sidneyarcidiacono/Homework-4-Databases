@@ -86,12 +86,31 @@ def user_login():
     else:
         email = request.form['user_email']
         user = mongo.db.users.find_one({'email': email})
-        print(user)
-        if request.form['password'] == user['password']:
-            session['logged_in'] = True
-            return redirect(url_for('create'))
-        else:
-            flash('Wrong password, please try again.')
+        try:
+            if email and request.form['password'] == user['password']:
+                session['logged_in'] = True
+                return redirect(url_for('create'))
+
+        except(TypeError):
+            flash('Incorrect email or password, please try again.')
+
+            context = {
+                'message': 'Incorrect email or password, please try again.'
+            }
+            return render_template('user_login.html', **context)
+
+
+@app.route('/user', )
+def user():
+    """Return user profile template."""
+    return render_template('user.html')
+
+
+@app.route('/log_out')
+def log_out():
+    """Log out user."""
+    session['logged_in'] = False
+    return redirect(url_for('plants_list'))
 
 
 @app.route('/create', methods=['GET', 'POST'])
