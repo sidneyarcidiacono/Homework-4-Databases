@@ -14,6 +14,9 @@
             <a href="/about">About</a>
             {% if session['logged_in'] %}
               <a href="/user">Profile</a>
+            {% else %}
+              <a href="/sign_up">Sign Up!</a>
+              <a href="/user_login">Log In</a>
             {% endif %}
         </nav>
 

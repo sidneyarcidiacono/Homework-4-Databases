@@ -1,6 +1,7 @@
 """Import packages and modules."""
-from flask import Flask, request, redirect, render_template, url_for, session, abort, flash
+from flask import Flask, request, redirect, render_template, url_for, session, flash
 from flask_pymongo import PyMongo
+from flask_login import LoginManager, current_user
 import os
 from bson.objectid import ObjectId
 
@@ -8,8 +9,10 @@ from bson.objectid import ObjectId
 # TODO:
 ############################################################
 # Input verification
+# Log in button
 # User profile page (which user currently logged in)
 # Create delete user functionality
+# Some kind of feedback when signed up "thanks for signing up! on homepage"
 
 ############################################################
 # SETUP
@@ -22,6 +25,22 @@ app.config['SECRET_KEY'] = 'SECRET_KEY'
 app.config["MONGO_URI"] = "mongodb://localhost:27017/plantsDatabase"
 mongo = PyMongo(app)
 
+# Define flask-login config variables & instantiate LoginManager
+login_manager = LoginManager()
+login_manager.init_app(app)
+
+
+# Define flask-login user_loader config function
+@login_manager.user_loader
+def user_callback(user_id):
+    """Define user callback for user_loader function."""
+    return mongo.db.users.find_one({'_id': ObjectId(user_id)})
+
+
+g = current_user
+
+
+# Define secret key in order to use flask-login
 app.config.update(
     SECRET_KEY=os.urandom(24)
 )
@@ -62,7 +81,7 @@ def sign_up():
         return render_template('sign_up.html')
     else:
         first_name = request.form['first-name']
-        last_name = request.form['last_name']
+        last_name = request.form['last-name']
         user_email = request.form['user_email']
         pass_one = request.form['set-password']
         pass_two = request.form['confirm-password']
@@ -77,6 +96,7 @@ def sign_up():
             }
             mongo.db.users.insert_one(new_user)
             session.logged_in = True
+            return redirect(url_for('plants_list'))
         else:
             flash('Passwords do not match. Please try again.')
 
@@ -92,6 +112,7 @@ def user_login():
         try:
             if email and request.form['password'] == user['password']:
                 session['logged_in'] = True
+                g.user = user
                 return redirect(url_for('create'))
 
         except(TypeError):
