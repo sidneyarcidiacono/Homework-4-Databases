@@ -106,7 +106,7 @@ def user():
     return render_template('user.html')
 
 
-@app.route('/log_out')
+@app.route('/log_out', methods=['GET', 'POST'])
 def log_out():
     """Log out user."""
     session['logged_in'] = False
