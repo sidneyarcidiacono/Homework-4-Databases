@@ -1,5 +1,6 @@
 """Import dependencies."""
 from flask_login import UserMixin
+from passlib.hash import sha256_crypt
 
 
 # Define User class

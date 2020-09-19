@@ -2,6 +2,7 @@
 from flask import Flask, request, redirect, render_template, url_for, session, flash
 from flask_pymongo import PyMongo
 from flask_login import LoginManager, UserMixin, current_user, login_required, login_user, logout_user
+from passlib.hash import sha256_crypt
 from user import User
 import os
 from bson.objectid import ObjectId
@@ -10,8 +11,7 @@ from bson.objectid import ObjectId
 # TODO:
 ############################################################
 # Input verification/pass length etc
-# Hash Passwords
-# Edit bio functionality
+# Hash Passwords/debug hashing
 # Some kind of feedback when signed up "thanks for signing up! on homepage"
 
 ############################################################
@@ -87,7 +87,7 @@ def sign_up():
             user_password = pass_one
             new_user = {
                 'email': user_email,
-                'password': user_password,
+                'password': sha256_crypt.encrypt(user_password),
                 'first_name': first_name,
                 'last_name': last_name
             }
@@ -110,9 +110,11 @@ def user_login():
     else:
         email = request.form['user_email']
         user = mongo.db.users.find_one({'email': email})
+        print(user['password'])
         try:
-            if request.form['password'] == user['password'] and email:
+            if sha256_crypt.verify(request.form['password'], user['password']) and email:
                 session_user = User(user['email'], user['password'], user['_id'])
+                print(session_user['password'])
                 login_user(session_user)
                 session['logged_in'] = True
                 return redirect(url_for('create'))
