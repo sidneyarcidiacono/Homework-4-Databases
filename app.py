@@ -169,7 +169,7 @@ def edit_user():
     """Edit user bio, name & image."""
     if request.method == 'POST':
         print(current_user)
-        edit_user = mongo.db.users.update({'_id': ObjectId(current_user['_id'])},
+        edit_user = mongo.db.users.update_one({'_id': ObjectId(current_user['_id'])},
                                           {
                                             '$set': {
                                                 'first_name': request.form['first-name'],

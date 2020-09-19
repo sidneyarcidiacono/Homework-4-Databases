@@ -22,9 +22,11 @@
     </nav>
     <div class="avatar-container">
       <a href="/user">
-        <object class='avatar-icon' data={{ current_user['avatar'] }} type="image/jpeg">
-          <img class='avatar' src='https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fi.ytimg.com%2Fvi%2F157JfoI6nGw%2Fmaxresdefault.jpg&f=1&nofb=1'>
-        </object>
+        {% if current_user['avatar'] %}
+          <img class='avatar-icon' src={{ current_user['avatar'] }}>
+        {% else %}
+          <img class='avatar-icon' src="https://cdn.britannica.com/84/73184-004-E5A450B5/Sunflower-field-Fargo-North-Dakota.jpg">
+        {% endif %}
       </a>
     </div>
     {% endif %}

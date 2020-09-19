@@ -1,4 +1,9 @@
 {% extends 'base.html' %}
+
+{% block head %}
+<script src="/static/signUpConfirm.js" defer></script>
+{% endblock %}
+
 {% block content %}
 
 <main>
@@ -18,7 +23,7 @@
         <input type="password" name="set-password" id="set-password" required>
       <label for="confirm-password">Confirm Password</label>
         <input type="password" name="confirm-password" id="confirm-password" required>
-        <input type="submit" name="submit" value="Submit!">
+        <input type="submit" name="submit" id="sign-up-submit" value="Submit!">
     </form>
   </div>
 
