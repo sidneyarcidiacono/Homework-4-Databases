@@ -2,6 +2,7 @@
 from flask import Flask, request, redirect, render_template, url_for, session, flash
 from flask_pymongo import PyMongo
 from flask_login import LoginManager, UserMixin, current_user, login_required, login_user, logout_user
+from user import User
 import os
 from bson.objectid import ObjectId
 
@@ -9,11 +10,9 @@ from bson.objectid import ObjectId
 # TODO:
 ############################################################
 # Input verification/pass length etc
-# Create delete user functionality
 # Hash Passwords
 # Edit bio functionality
 # Some kind of feedback when signed up "thanks for signing up! on homepage"
-# Refactor to use modules, clean up code
 
 ############################################################
 # SETUP
@@ -29,19 +28,6 @@ mongo = PyMongo(app)
 # Define flask-login config variables & instantiate LoginManager
 login_manager = LoginManager(app)
 login_manager.init_app(app)
-
-
-# Define User class
-class User(UserMixin):
-    """Define User class based on UserMixIn."""
-
-    user_database = mongo.db.users
-
-    def __init__(self, email, password, id):
-        """Initialize user properties."""
-        self.email = email
-        self.password = password
-        self.id = id
 
 
 # Define flask-login user_loader config function
@@ -168,7 +154,31 @@ def log_out():
 @app.route('/delete_user')
 def delete_user():
     """Delete user profile and log out user."""
-    pass
+    delete_user = mongo.db.users.delete_one({'_id': ObjectId(current_user['_id'])})
+    print(delete_user)
+    return redirect(url_for('plants_list'))
+
+
+@app.route('/edit_user', methods=['GET', 'POST'])
+def edit_user():
+    """Edit user bio, name & image."""
+    if request.method == 'POST':
+        print(current_user)
+        edit_user = mongo.db.users.update({'_id': ObjectId(current_user['_id'])},
+                                          {
+                                            '$set': {
+                                                'first_name': request.form['first-name'],
+                                                'last_name': request.form['last-name'],
+                                                'bio': request.form['bio']
+                                            }
+                                          })
+        return redirect(url_for('user'))
+    else:
+        user = current_user
+        context = {
+            'user': user
+        }
+        return render_template('edit_user.html', **context)
 
 
 @app.route('/create', methods=['GET', 'POST'])
