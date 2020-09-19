@@ -84,10 +84,10 @@ def sign_up():
         pass_two = request.form['confirm-password']
         user_password = ''
         if pass_one and pass_two and pass_one == pass_two:
-            user_password = pass_one
+            user_password = sha256_crypt.hash(pass_one)
             new_user = {
                 'email': user_email,
-                'password': sha256_crypt.encrypt(user_password),
+                'password': user_password,
                 'first_name': first_name,
                 'last_name': last_name
             }
@@ -110,11 +110,10 @@ def user_login():
     else:
         email = request.form['user_email']
         user = mongo.db.users.find_one({'email': email})
-        print(user['password'])
+        entered_pass = request.form['password']
         try:
-            if sha256_crypt.verify(request.form['password'], user['password']) and email:
+            if sha256_crypt.verify(entered_pass, user['password']):
                 session_user = User(user['email'], user['password'], user['_id'])
-                print(session_user['password'])
                 login_user(session_user)
                 session['logged_in'] = True
                 return redirect(url_for('create'))
@@ -123,7 +122,6 @@ def user_login():
                 return redirect(url_for('user_login'))
         except(TypeError):
             flash('Incorrect email or password, please try again.')
-
             context = {
                 'message': 'Incorrect email or password, please try again.'
             }
