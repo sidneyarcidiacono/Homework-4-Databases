@@ -11,9 +11,6 @@ from bson.objectid import ObjectId
 # TODO:
 ############################################################
 # Some kind of feedback when signed up "thanks for signing up! on homepage"
-# Style buttons on user page
-# Allow user to change image
-# avatar image that appears when user logs in (upper right corner)
 
 ############################################################
 # SETUP
@@ -123,8 +120,11 @@ def user_login():
                 session['logged_in'] = True
                 return redirect(url_for('create'))
             else:
-                print('Something went wrong - we at the else statement.')
-                return redirect(url_for('user_login'))
+                flash('Incorrect email or password, please try again.')
+                context = {
+                    'message': 'Incorrect email or password, please try again.'
+                }
+                return render_template('user_login.html', **context)
         except(TypeError):
             flash('Incorrect email or password, please try again.')
             context = {
@@ -191,11 +191,11 @@ def edit_user():
 def create():
     """Display the plant creation page & process data from the creation form."""
     try:
-        if not session['logged_in']:
-            print(f"Current user from create: {current_user}")
-            print(f"Session id from create: {session.get('user_id')}")
-            return redirect(url_for('user_login'))
-        elif request.method == 'POST' and current_user:
+        if session['logged_in'] and request.method == 'GET':
+            print("We're in the if statement")
+            return render_template('create.html')
+        elif request.method == 'POST' and session['logged_in']:
+            print("we're in elif")
             name = request.form['plant_name']
             variety = request.form['variety']
             photo_url = request.form['photo']
@@ -212,12 +212,11 @@ def create():
             plant_id = plant.inserted_id
 
             return redirect(url_for('detail', plant_id=plant_id))
-
         else:
-            return render_template('create.html')
+            return redirect(url_for('user_login'))
     except(KeyError):
         print('Something went wrong loading Create')
-        return render_template('plants_list.html')
+        return redirect(url_for('plants_list'))
 
 
 @app.route('/plant/<plant_id>')

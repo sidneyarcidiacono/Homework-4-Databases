@@ -11,3 +11,11 @@ class User(UserMixin):
         self.email = email
         self.password = password
         self.id = id
+
+    def is_anonymous(self):
+        """Set is_anonymous for logged-in user."""
+        return False
+
+    def is_authenticated(self):
+        """Set is_authenticated for logged-in user."""
+        return True

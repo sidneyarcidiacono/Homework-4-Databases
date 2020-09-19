@@ -9,13 +9,13 @@
 <main>
     <section id="content">
         <h1>{{ user['first_name'] }} {{ user['last_name']}}</h1>
-          <h3>{{ user['email'] }}
+          <h3>{{ user['email'] }}</h3>
         </br>
-        {% if user['avatar'] %}
-          <img class="avatar" src={{ user['avatar']}}>
-        {% else %}
-          <img class="avatar" src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fi.ytimg.com%2Fvi%2F157JfoI6nGw%2Fmaxresdefault.jpg&f=1&nofb=1">
-        {% endif %}
+    {% if user['avatar'] %}
+      <img class="avatar" src={{ user['avatar']}}>
+    {% else %}
+      <img class="avatar" src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fi.ytimg.com%2Fvi%2F157JfoI6nGw%2Fmaxresdefault.jpg&f=1&nofb=1">
+    {% endif %}
         <h2>Bio</h2>
           <p>
             {{ user['bio'] }}

@@ -13,7 +13,11 @@
             <a href="/">Home</a>
             <a href="/about">About</a>
             {% if not current_user.is_anonymous %}
-              <a href="/user">Profile</a>
+              <a href="/user">
+                <object class='avatar-icon' data={{ current_user['avatar'] }} type="image/jpeg">
+                  <img class='avatar' src='https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fi.ytimg.com%2Fvi%2F157JfoI6nGw%2Fmaxresdefault.jpg&f=1&nofb=1'>
+                </object>
+              </a>
             {% else %}
               <a href="/sign_up">Sign Up!</a>
               <a href="/user_login">Log In</a>

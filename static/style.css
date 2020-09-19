@@ -62,6 +62,29 @@ footer {
     left: 0
 }
 
+button {
+  background-color: #229954;
+  color: white;
+  border-radius: 3px;
+  padding: 10px 15px;
+  font-size: 1em;
+}
+
+.avatar {
+  margin: auto;
+  max-width: 150px;
+  max-height: 150px;
+  border-radius: 100%;
+}
+
+.avatar-icon {
+  margin: auto;
+  max-width: 48px;
+  max-height: 48px;
+  border-radius: 100%;
+  float: right;
+}
+
 .detail {
   max-width: 30vw;
   box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.2), 0 6px 15px 0 rgba(0, 0, 0, 0.2);
