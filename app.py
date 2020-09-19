@@ -1,18 +1,19 @@
 """Import packages and modules."""
 from flask import Flask, request, redirect, render_template, url_for, session, flash
 from flask_pymongo import PyMongo
-from flask_login import LoginManager, current_user
+from flask_login import LoginManager, UserMixin, current_user, login_required, login_user, logout_user
 import os
 from bson.objectid import ObjectId
 
 ############################################################
 # TODO:
 ############################################################
-# Input verification
-# Log in button
-# User profile page (which user currently logged in)
+# Input verification/pass length etc
 # Create delete user functionality
+# Hash Passwords
+# Edit bio functionality
 # Some kind of feedback when signed up "thanks for signing up! on homepage"
+# Refactor to use modules, clean up code
 
 ############################################################
 # SETUP
@@ -26,18 +27,28 @@ app.config["MONGO_URI"] = "mongodb://localhost:27017/plantsDatabase"
 mongo = PyMongo(app)
 
 # Define flask-login config variables & instantiate LoginManager
-login_manager = LoginManager()
+login_manager = LoginManager(app)
 login_manager.init_app(app)
+
+
+# Define User class
+class User(UserMixin):
+    """Define User class based on UserMixIn."""
+
+    user_database = mongo.db.users
+
+    def __init__(self, email, password, id):
+        """Initialize user properties."""
+        self.email = email
+        self.password = password
+        self.id = id
 
 
 # Define flask-login user_loader config function
 @login_manager.user_loader
-def user_callback(user_id):
+def load_user(id):
     """Define user callback for user_loader function."""
-    return mongo.db.users.find_one({'_id': ObjectId(user_id)})
-
-
-g = current_user
+    return mongo.db.users.find_one({'_id': ObjectId(id)})
 
 
 # Define secret key in order to use flask-login
@@ -94,8 +105,12 @@ def sign_up():
                 'first_name': first_name,
                 'last_name': last_name
             }
-            mongo.db.users.insert_one(new_user)
-            session.logged_in = True
+            insert_user = mongo.db.users.insert_one(new_user)
+            user_id = insert_user.inserted_id
+            get_user = mongo.db.users.find_one_or_404({'_id': ObjectId(user_id)})
+            user = User(get_user['email'], get_user['password'], user_id)
+            login_user(user)
+            session['logged_in'] = True
             return redirect(url_for('plants_list'))
         else:
             flash('Passwords do not match. Please try again.')
@@ -103,18 +118,21 @@ def sign_up():
 
 @app.route('/user_login', methods=['GET', 'POST'])
 def user_login():
-    """Allow user to access create feature."""
+    """Allow user to access more website features."""
     if request.method == 'GET':
         return render_template('user_login.html')
     else:
         email = request.form['user_email']
         user = mongo.db.users.find_one({'email': email})
         try:
-            if email and request.form['password'] == user['password']:
+            if request.form['password'] == user['password'] and email:
+                session_user = User(user['email'], user['password'], user['_id'])
+                login_user(session_user)
                 session['logged_in'] = True
-                g.user = user
                 return redirect(url_for('create'))
-
+            else:
+                print('Something went wrong - we at the else statement.')
+                return redirect(url_for('user_login'))
         except(TypeError):
             flash('Incorrect email or password, please try again.')
 
@@ -124,16 +142,26 @@ def user_login():
             return render_template('user_login.html', **context)
 
 
-@app.route('/user', )
+@app.route('/user', methods=['GET', 'POST'])
 def user():
     """Return user profile template."""
-    return render_template('user.html')
+    if session['logged_in']:
+        user = current_user
+    else:
+        print(current_user)
+        return("user is none")
+
+    context = {
+        'user': user,
+    }
+
+    return render_template('user.html', **context)
 
 
 @app.route('/log_out', methods=['GET', 'POST'])
 def log_out():
     """Log out user."""
-    session['logged_in'] = False
+    logout_user()
     return redirect(url_for('plants_list'))
 
 
@@ -146,28 +174,34 @@ def delete_user():
 @app.route('/create', methods=['GET', 'POST'])
 def create():
     """Display the plant creation page & process data from the creation form."""
-    if not session.get('logged_in'):
-        return redirect(url_for('user_login'))
-    elif request.method == 'POST' and session.get('logged_in'):
-        name = request.form['plant_name']
-        variety = request.form['variety']
-        photo_url = request.form['photo']
-        date_planted = request.form['date_planted']
+    try:
+        if not session['logged_in']:
+            print(f"Current user from create: {current_user}")
+            print(f"Session id from create: {session.get('user_id')}")
+            return redirect(url_for('user_login'))
+        elif request.method == 'POST' and current_user:
+            name = request.form['plant_name']
+            variety = request.form['variety']
+            photo_url = request.form['photo']
+            date_planted = request.form['date_planted']
 
-        new_plant = {
-            'name': name,
-            'photo_url': photo_url,
-            'date_planted': date_planted,
-            'variety': variety
-        }
+            new_plant = {
+                'name': name,
+                'photo_url': photo_url,
+                'date_planted': date_planted,
+                'variety': variety
+            }
 
-        plant = mongo.db.plants.insert_one(new_plant)
-        plant_id = plant.inserted_id
+            plant = mongo.db.plants.insert_one(new_plant)
+            plant_id = plant.inserted_id
 
-        return redirect(url_for('detail', plant_id=plant_id))
+            return redirect(url_for('detail', plant_id=plant_id))
 
-    else:
-        return render_template('create.html')
+        else:
+            return render_template('create.html')
+    except(KeyError):
+        print('Something went wrong loading Create')
+        return render_template('plants_list.html')
 
 
 @app.route('/plant/<plant_id>')
