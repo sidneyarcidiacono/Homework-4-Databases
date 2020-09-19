@@ -10,9 +10,10 @@ from bson.objectid import ObjectId
 ############################################################
 # TODO:
 ############################################################
-# Input verification/pass length etc
-# Hash Passwords/debug hashing
 # Some kind of feedback when signed up "thanks for signing up! on homepage"
+# Style buttons on user page
+# Allow user to change image
+# avatar image that appears when user logs in (upper right corner)
 
 ############################################################
 # SETUP
@@ -83,7 +84,8 @@ def sign_up():
         pass_one = request.form['set-password']
         pass_two = request.form['confirm-password']
         user_password = ''
-        if pass_one and pass_two and pass_one == pass_two:
+        if len(pass_one) >= 8 and len(pass_one) <= 12 \
+                and pass_two and pass_one == pass_two:
             user_password = sha256_crypt.hash(pass_one)
             new_user = {
                 'email': user_email,
@@ -99,7 +101,10 @@ def sign_up():
             session['logged_in'] = True
             return redirect(url_for('plants_list'))
         else:
-            flash('Passwords do not match. Please try again.')
+            context = {
+                'message': 'Passwords must match and be between 8 and 12 characters.'
+            }
+            return render_template('sign_up.html', **context)
 
 
 @app.route('/user_login', methods=['GET', 'POST'])
@@ -169,7 +174,8 @@ def edit_user():
                                             '$set': {
                                                 'first_name': request.form['first-name'],
                                                 'last_name': request.form['last-name'],
-                                                'bio': request.form['bio']
+                                                'bio': request.form['bio'],
+                                                'avatar': request.form['avatar']
                                             }
                                           })
         return redirect(url_for('user'))
