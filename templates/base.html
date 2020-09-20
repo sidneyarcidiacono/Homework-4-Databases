@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>My Plants</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Homemade+Apple&display=swap" rel="stylesheet">
+  <script src="/static/index.js" defer></script>
+  {% block head %}{% endblock %}
+</head>
+
+<body>
+  <header>
+    <nav>
+      <a href="/">Home</a>
+      <a href="/about">About</a>
+    {% if current_user.is_anonymous %}
+      <a href="/sign_up">Sign Up!</a>
+      <a href="/user_login">Log In</a>
+    </nav>
+    {% else %}
+    </nav>
+    <div class="avatar-container">
+      <a href="/user">
+        {% if current_user['avatar'] %}
+          <img class='avatar-icon' src={{ current_user['avatar'] }}>
+        {% else %}
+          <img class='avatar-icon' src="https://cdn.britannica.com/84/73184-004-E5A450B5/Sunflower-field-Fargo-North-Dakota.jpg">
+        {% endif %}
+      </a>
+    </div>
+    {% endif %}
+  </header>
+
+  {% block content %}{% endblock %}
+
+
+  <footer>
+    <div>
+      Copyright 2020 Sid Arcidiacono
+    </div>
+  </footer>
+
+</body>
+
+</html>

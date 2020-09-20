@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<script src="/static/signUp.js" defer></script>
+{% endblock %}
+
+{% block content %}
+
+<main>
+  <div>
+    <form method="POST">
+      Please Log In To Add Plants: </br>
+      </br>
+      {% if message %}
+        <p> {{ message }} </p>
+      {% endif %}
+      <label for="email">Email Address</label>
+        <input type="email" name="user_email" id="email"></input>
+      <label for="password">Password</label>
+        <input type="password" name="password" id="password">
+        <input type="submit" name="submit" value="Submit!">
+    </form>
+  </div>
+  <div>
+    <p>If you don't have an account,</p>
+    <button id="sign-up">Sign Up Now!</button>
+  </div>
+
+{% endblock content %}

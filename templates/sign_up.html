@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<script src="/static/signUpConfirm.js" defer></script>
+{% endblock %}
+
+{% block content %}
+
+<main>
+  <div>
+    <form method="POST">
+      Sign Up Now! </br>
+      {% if message %}
+        <p>{{ message }}</p>
+      {% endif %}
+      <label for="first-name">First Name</label>
+        <input type="text" name="first-name" id="first-name" required></input>
+      <label for="last-name">Last Name</label>
+        <input type="text" name="last-name" id="last-name" required></input>
+      <label for="email">Email Address</label>
+        <input type="email" name="user_email" id="email" required></input>
+      <label for="set-password">Password (Must be between 8 and 12 characters)</label>
+        <input type="password" name="set-password" id="set-password" required>
+      <label for="confirm-password">Confirm Password</label>
+        <input type="password" name="confirm-password" id="confirm-password" required>
+        <input type="submit" name="submit" id="sign-up-submit" value="Submit!">
+    </form>
+  </div>
+
+{% endblock content %}

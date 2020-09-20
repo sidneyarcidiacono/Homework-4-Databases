@@ -1,0 +1,13 @@
+click==7.1.2
+Flask==1.1.2
+itsdangerous==1.1.0
+Jinja2==2.11.2
+MarkupSafe==1.1.1
+mccabe==0.6.1
+passlib==1.7.2
+pycodestyle==2.6.0
+pydocstyle==5.1.1
+pyflakes==2.2.0
+pylama==7.7.1
+snowballstemmer==2.0.0
+Werkzeug==1.0.1

@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<script src="/static/user.js" defer></script>
+{% endblock %}
+
+{% block content %}
+
+<main>
+    <section id="content">
+        <h1>{{ user['first_name'] }} {{ user['last_name']}}</h1>
+          <h3>{{ user['email'] }}</h3>
+        </br>
+    {% if user['avatar'] %}
+      <img class="avatar" src={{ user['avatar']}}>
+    {% else %}
+      <img class="avatar" src="https://cdn.britannica.com/84/73184-004-E5A450B5/Sunflower-field-Fargo-North-Dakota.jpg">
+    {% endif %}
+        <h2>Bio</h2>
+          <p>
+            {{ user['bio'] }}
+          </p>
+    </section>
+
+    <button id="edit_user_button">Edit Profile</button>
+    <button id="log-out">Log Out</button>
+    <button id="delete-user">Delete Profile</button>
+</main>
+
+{% endblock content %}
