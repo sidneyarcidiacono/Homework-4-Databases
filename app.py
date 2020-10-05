@@ -1,16 +1,11 @@
 """Import packages and modules."""
 from flask import Flask, request, redirect, render_template, url_for, session, flash
 from flask_pymongo import PyMongo
-from flask_login import LoginManager, UserMixin, current_user, login_required, login_user, logout_user
+from flask_login import LoginManager, UserMixin, current_user, login_user, logout_user
 from passlib.hash import sha256_crypt
 from user import User
 import os
 from bson.objectid import ObjectId
-
-############################################################
-# TODO:
-############################################################
-# Some kind of feedback when signed up "thanks for signing up! on homepage"
 
 ############################################################
 # SETUP
@@ -41,7 +36,7 @@ app.config.update(
 )
 
 ############################################################
-# ROUTES
+# ERROR HANDLING                                           #
 ############################################################
 
 
@@ -50,6 +45,10 @@ def oops_page(e):
     """Return custom 404 page if page not found."""
     print(e)
     return render_template('404.html')
+
+############################################################
+# ROUTES                                                   #
+############################################################
 
 
 @app.route('/')
@@ -82,7 +81,7 @@ def sign_up():
         pass_two = request.form['confirm-password']
         user_password = ''
         if len(pass_one) >= 8 and len(pass_one) <= 12 \
-                and pass_two and pass_one == pass_two:
+                and pass_one == pass_two:
             user_password = sha256_crypt.hash(pass_one)
             new_user = {
                 'email': user_email,
@@ -192,7 +191,6 @@ def create():
     """Display the plant creation page & process data from the creation form."""
     try:
         if session['logged_in'] and request.method == 'GET':
-            print("We're in the if statement")
             return render_template('create.html')
         elif request.method == 'POST' and session['logged_in']:
             print("we're in elif")
